@@ -9,6 +9,7 @@ final class AppState {
     private static let defaultToolPreferenceKey = "defaultToolPreference"
     private static let interactiveModeEnabledKey = "interactiveModeEnabled"
     private static let showAlwaysTipKey = "showAlwaysTip"
+    private static let clearOnDisableKey = "clearOnDisable"
     /// Fixed (not user-configurable — was a Settings stepper, now just a constant): if the shortcut
     /// is pressed again within this long of entering Interactive, it jumps back to Enabled instead
     /// of Disabled — a long stint in Interactive usually means the user wants to keep annotating.
@@ -28,6 +29,11 @@ final class AppState {
     /// Toggled via the menu-bar checkbox (AppDelegate), not Settings.
     var interactiveModeEnabled: Bool {
         didSet { UserDefaults.standard.set(interactiveModeEnabled, forKey: Self.interactiveModeEnabledKey) }
+    }
+
+    /// Toggled via the menu-bar checkbox (AppDelegate) — wipes the canvas every time the app goes Disabled.
+    var clearOnDisable: Bool {
+        didSet { UserDefaults.standard.set(clearOnDisable, forKey: Self.clearOnDisableKey) }
     }
 
     /// Toggled via the menu-bar checkbox (AppDelegate) — keeps the current tool's width/size/color
@@ -51,6 +57,7 @@ final class AppState {
 
     init() {
         interactiveModeEnabled = (UserDefaults.standard.object(forKey: Self.interactiveModeEnabledKey) as? Bool) ?? true
+        clearOnDisable = UserDefaults.standard.bool(forKey: Self.clearOnDisableKey)
         showAlwaysTip = (UserDefaults.standard.object(forKey: Self.showAlwaysTipKey) as? Bool) ?? false
         applyDefaultToolPreference()
     }

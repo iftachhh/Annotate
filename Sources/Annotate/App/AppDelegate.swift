@@ -12,6 +12,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private lazy var overlayManager = OverlayManager(appState: appState, hudController: hudController, widthPreviewController: widthPreviewController, textPreviewController: textPreviewController)
     private var settingsWindowController: NSWindowController?
     private var interactiveModeItem: NSMenuItem!
+    private var clearOnDisableItem: NSMenuItem!
     private var showAlwaysTipItem: NSMenuItem!
     private var defaultToolMenu: NSMenu!
 
@@ -26,6 +27,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         interactiveModeItem.target = self
         interactiveModeItem.state = appState.interactiveModeEnabled ? .on : .off
         menu.addItem(interactiveModeItem)
+
+        clearOnDisableItem = NSMenuItem(title: "Clear Drawings When Disabled", action: #selector(toggleClearOnDisable), keyEquivalent: "")
+        clearOnDisableItem.target = self
+        clearOnDisableItem.state = appState.clearOnDisable ? .on : .off
+        menu.addItem(clearOnDisableItem)
 
         showAlwaysTipItem = NSMenuItem(title: "Always Show Tool Tip", action: #selector(toggleAlwaysTip), keyEquivalent: "")
         showAlwaysTipItem.target = self
@@ -129,6 +135,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         interactiveModeItem.state = appState.interactiveModeEnabled ? .on : .off
     }
 
+    @objc private func toggleClearOnDisable() {
+        appState.clearOnDisable.toggle()
+        clearOnDisableItem.state = appState.clearOnDisable ? .on : .off
+    }
+
     @objc private func toggleAlwaysTip() {
         appState.showAlwaysTip.toggle()
         showAlwaysTipItem.state = appState.showAlwaysTip ? .on : .off
@@ -153,6 +164,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         appState.mode = newMode
         overlayManager.applyMode(newMode)
+        // After applyMode, so any in-progress text entry is committed (and then wiped) rather than orphaned.
+        if newMode == .disabled, appState.clearOnDisable {
+            appState.clearAll()
+        }
         hudController.show(text: modeDisplayName(newMode))
         updateStatusIcon(for: newMode)
     }
