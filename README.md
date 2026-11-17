@@ -28,8 +28,8 @@ scripts/build-app.sh   # build/Annotate.app
 scripts/release.sh     # build/Annotate-<version>.dmg (universal)
 ```
 
-To publish a release, set the version in `Resources/Info.plist`, then push a matching tag (`git tag v1.0 && git push origin v1.0`).
-GitHub Actions builds the disk image and attaches it to the release.
+To publish a release, set the version in `Resources/Info.plist`, run `scripts/release.sh`, then upload the disk image:
+`gh release create v1.0 build/Annotate-1.0.dmg --title "Annotate 1.0" --generate-notes`.
 
 ## License
 
